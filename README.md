@@ -8,7 +8,7 @@
 ## Возможные варианты использования
 ```ruby
 
-Drom.search(make: "toyota", model: "camry", maxprice: 900000, minyear: 2009)
+Drom.search(make: "toyota", model: "camry", maxprice: 900000, minyear: 2009).listings
 # > [{поля которые были доступны "Двигатель"=>"бензин, 3.5 л", "Мощность"=>"249 л.с", ...}, {}, ...]
 
 # сохраняет результат в listings.csv
