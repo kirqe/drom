@@ -1,6 +1,6 @@
 module Drom
   class Search
-    attr_reader :initial_url, :listings
+    attr_reader :listings
 
     def initialize(options = {}, &block)
       return [] if options.empty?
