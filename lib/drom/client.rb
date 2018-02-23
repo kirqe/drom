@@ -7,8 +7,12 @@ module Drom
     base_uri 'https://auto.drom.ru'
 
     def get(url)
-      url = self.class.get(url)
-      Nokogiri::HTML(url)
+      begin
+        page = self.class.get(url)
+        Nokogiri::HTML(page)
+      rescue SocketError => e
+        print "SocketError"
+      end
     end
   end
 end

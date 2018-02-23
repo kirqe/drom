@@ -1,69 +1,52 @@
 module Drom
   class Search
-    attr_reader :listings, :urls
+    attr_reader :initial_url, :listings
 
     def initialize(options = {}, &block)
+      return [] if options.empty?
       @client = Client.new
-      @initial_url = build_url(options)
-      @urls = []
+      @start_url = start_url(options)
       @listings = []
-      get_urls
-      process_listings(&block)
+      @next_page = ""
+      Whirly.start spinner: "dots", status: "COLLECTING LISTINGS" do
+        process_listings(&block)
+      end
+    end
+
+    def to_csv
+      s = CSV.generate do |csv|
+        self.listings.uniq.each { |l| csv << [l["Ссылка"], l.map {|k,v| "#{k}: #{v}"}.join("\r\n")] }
+      end
+      print "TOTAL #{@listings.size}\n"
+      File.write("listings.csv", s)
     end
 
     private
-      def process_listing(url)
-        listing = Listing.new(@client.get(url)).parsed
-        @listings << listing
-        listing
-      end
-
-      def process_listings
-        print "PROCESSING COLLECTED URLS\n"
-        if @urls.any?
-          @urls.each_slice(2) do |batch|
-            batch.map do |url|
-              Thread.new { yield process_listing(url) if block_given? }
-            end.each(&:join)
-          end
-        else
-          print "There are no search results to process\n"
-        end
-      end
-
-      def get_urls
-        print "COLLECTING URLS OF LISTINGS\n"
-        page = @client.get(@initial_url)
+      def process_listings(&block)
+        return if @start_url.nil?
         loop do
-          page.search('.b-advItem').each do |a|
-            @urls << a["href"]
-            print "#{a["href"]}\n"
-          end
-          break if page.at_css(".b-pagination__item_next").nil?
-          page = @client.get(page.at_css(".b-pagination__item_next")["href"])
+          page = Page.new(@start_url, &block)
+          @listings += page.listings
+          break unless page.next_page
+          @start_url = page.next_page
         end
       end
 
       # fx this
-      def build_url(options = {})
-        default_options = {
-          make: "",
-          model: "",
-          page: 1
-        }
-        options = default_options.merge(options)
-        query = default_options.merge(options)
+      def start_url(options = {})
+        default_options= { make: "", model: "", page: 1 }
 
-        reject_keys = [:make, :model, :page]
-        query = query.reject! { |k, _| reject_keys.include?(k) }.map { |k,v| "&#{k}=#{v}" }.join("")
-
-
-        if !options[:make].empty? && options[:model].empty?
-          url = "https://auto.drom.ru/#{options[:make]}/all/page#{options[:page]}"
-        elsif !options[:make].empty? && !options[:model].empty?
-          url = "https://auto.drom.ru/#{options[:make]}/#{options[:model]}/page#{options[:page]}/?#{query}"
+        [:make, :model].each do |k|
+          return if (options.has_key?(k) && options[k].empty?)
         end
-        url
+
+        options = default_options.merge(options)
+        make, model, page = [:make, :model, :page].map { |k| options[k] }
+
+        options.reject! { |k, v| [:make, :model, :page].include?(k) }
+        query = options.map { |k,v| "#{k}=#{v}" }.join("&")
+
+        "/#{make}/#{model}/page#{page}/?#{query}"
       end
   end
 end

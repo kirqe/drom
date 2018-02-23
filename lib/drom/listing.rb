@@ -1,8 +1,9 @@
 module Drom
   class Listing
-    attr_reader :parsed
+    attr_reader :url, :parsed
 
-    def initialize(page)
+    def initialize(url, page)
+      @url = url
       @page = page
       @parsed = {}
       parse_sections
@@ -19,6 +20,8 @@ module Drom
 
       def parse_sections
         begin
+          @parsed["Ссылка"] = @url
+
           @page.search("span[data-section = 'auto-description'] .b-text-gray").each do |e|
             @parsed[format_key(e.children.text)] = format_value(e.next_sibling.text)
           end
@@ -32,7 +35,7 @@ module Drom
           @parsed["Фото"] = @page.search(".b-advItemGallery__thumbs .b-advItemGallery__photo").map { |e| e["href"] }
           @parsed["Цена"] = format_value(@page.search("div.b-media-cont.b-media-cont_theme_dot").text.strip.delete("руб."))
         rescue NoMethodError
-          print "Some fields are missing\n"
+          # ...
         end
       end
   end
