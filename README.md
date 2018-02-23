@@ -1,7 +1,7 @@
 # Drom
 
+парсер drom.ru
 
-## Installation
 
     $ gem install drom
 
