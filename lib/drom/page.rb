@@ -1,6 +1,6 @@
 module Drom
   class Page
-    attr_reader :urls, :listings, :next_page
+    attr_reader :listings, :next_page
 
     def initialize(url, &block)
       @client = Client.new

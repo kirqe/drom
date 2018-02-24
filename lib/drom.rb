@@ -10,7 +10,8 @@ module Drom
   end
 
   def self.get_single_listing(url)
-    page = Client.get(url)
+    @client = Client.new
+    page = @client.get(url)
     Drom::Listing.new(url, page).parsed
   end
 end

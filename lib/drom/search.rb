@@ -3,13 +3,14 @@ module Drom
     attr_reader :listings
 
     def initialize(options = {}, &block)
-      return [] if options.empty?
       @client = Client.new
       @start_url = start_url(options)
       @listings = []
       @next_page = ""
-      Whirly.start spinner: "dots", status: "COLLECTING LISTINGS" do
-        process_listings(&block)
+      if valid_options?(options)
+        Whirly.start spinner: "dots", status: "COLLECTING LISTINGS" do
+          process_listings(&block)
+        end
       end
     end
 
@@ -32,13 +33,8 @@ module Drom
         end
       end
 
-      # fx this
       def start_url(options = {})
         default_options= { make: "", model: "", page: 1 }
-
-        [:make, :model].each do |k|
-          return if (options.has_key?(k) && options[k].empty?)
-        end
 
         options = default_options.merge(options)
         make, model, page = [:make, :model, :page].map { |k| options[k] }
@@ -47,6 +43,13 @@ module Drom
         query = options.map { |k,v| "#{k}=#{v}" }.join("&")
 
         "/#{make}/#{model}/page#{page}/?#{query}"
+      end
+
+      def valid_options?(options)
+        [:make, :model].each do |k|
+          return false if (options.has_key?(k) && options[k].empty?) || !options.has_key?(k)
+        end
+        true
       end
   end
 end
