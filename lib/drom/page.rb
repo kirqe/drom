@@ -14,7 +14,7 @@ module Drom
     private
     def process_listing(url)
       page = @client.get(url)
-      listing = Listing.new(url, page).parsed
+      listing = ListingParser.new(url, page).parsed
       @listings << listing
       listing
     end

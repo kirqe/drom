@@ -1,5 +1,5 @@
 module Drom
-  class Listing
+  class ListingParser
     attr_reader :url, :parsed
 
     def initialize(url, page)

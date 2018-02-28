@@ -2,7 +2,7 @@ require_relative "drom/version"
 require_relative 'drom/client'
 require_relative 'drom/search'
 require_relative 'drom/page'
-require_relative 'drom/listing'
+require_relative 'drom/listing_parser'
 
 module Drom
   def self.search(options, &block)
@@ -12,7 +12,7 @@ module Drom
   def self.get_single_listing(url)
     @client = Client.new
     page = @client.get(url)
-    Drom::Listing.new(url, page).parsed
+    Drom::ListingParser.new(url, page).parsed
   end
 end
 
