@@ -10,7 +10,7 @@ Gem::Specification.new do |spec|
   spec.email         = ["railsr@yahoo.com"]
 
   spec.summary       = %q{Fetching and parsing listings from drom.ru}
-  spec.description   = %q{Ruby gem for fetching and parsing listing from drom.ru}
+  spec.description   = %q{Ruby gem for fetching and parsing listings from drom.ru}
   spec.homepage      = "https://github.com/kirqe/drom"
   spec.license       = "MIT"
 

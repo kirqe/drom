@@ -8,7 +8,7 @@ module Drom
       @listings = []
       @next_page = nil
       @progress_type = options[:status] || :none
-      show_progress(@progress_type, &block) if valid_options?(options)
+      start(@progress_type, &block) if valid_options?(options)
     end
 
     def <<(listing)
@@ -64,7 +64,7 @@ module Drom
         true
       end
 
-      def show_progress(progress_type, &block)
+      def start(progress_type, &block)
         case progress_type
         when :none then process_listings(&block)
         when :spinner then spinner { process_listings(&block) }
